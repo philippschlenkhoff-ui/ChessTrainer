@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Die Rook – Spiele gegen starke Schachengine</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="loader" class="loader-overlay">
+      <div class="loader-inner">
+        <div class="loader-caption">Die Rook lädt</div>
+        <div id="loaderMiniBoard" class="loader-mini-board"></div>
+        <div class="loader-text">Schachbrett wird vorbereitet&nbsp;…</div>
+      </div>
+    </div>
+
+    <div id="mainMenu" class="main-menu-overlay">
+      <div class="main-menu-dialog">
+        <div class="main-menu-header">
+          <div class="main-menu-logo">♖</div>
+          <div class="main-menu-header-text">
+            <div class="main-menu-brand">Die Rook</div>
+            <div class="main-menu-brand-subtitle">Dein persönlicher Schachtrainer</div>
+          </div>
+        </div>
+        <div class="main-menu-title">Hauptmenü</div>
+        <div class="main-menu-subtitle">Wähle einen Modus, um zu starten.</div>
+        <div id="menuDemoBoard" class="loader-mini-board main-menu-demo-board"></div>
+        <div class="main-menu-grid">
+          <button id="menuPlayBtn" class="main-menu-btn">
+            <div class="main-menu-btn-row">
+              <div class="main-menu-btn-icon">♟</div>
+              <div class="main-menu-btn-text">
+                <div class="main-menu-btn-label">Gegen Engine spielen</div>
+                <div class="main-menu-btn-desc">Volle Partie gegen eine starke Engine.</div>
+              </div>
+            </div>
+          </button>
+          <button id="menuTacticsBtn" class="main-menu-btn">
+            <div class="main-menu-btn-row">
+              <div class="main-menu-btn-icon">♞</div>
+              <div class="main-menu-btn-text">
+                <div class="main-menu-btn-label">Taktikaufgaben</div>
+                <div class="main-menu-btn-desc">Zufällige Taktikstellungen zum Trainieren.</div>
+              </div>
+            </div>
+          </button>
+          <button id="menuAnalysisBtn" class="main-menu-btn">
+            <div class="main-menu-btn-row">
+              <div class="main-menu-btn-icon">♝</div>
+              <div class="main-menu-btn-text">
+                <div class="main-menu-btn-label">Analyse-Modus</div>
+                <div class="main-menu-btn-desc">Stellungen ausprobieren und Züge untersuchen.</div>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Die Rook</h1>
+        <p>Spiele Schach gegen eine fortschrittliche Engine (Tiefe bis 25)</p>
+      </div>
+      <button id="backToMenuBtn" class="topbar-menu-btn">Zum Hauptmenü</button>
+    </header>
+
+    <main class="layout">
+      <section class="board-panel">
+        <div id="board" class="board" style="width: 600px"></div>
+      </section>
+
+      <section class="side-panel">
+        <div class="controls">
+          <div class="mode-section mode-play">
+            <div class="control">
+              <label for="colorSelect">Deine Farbe</label>
+              <select id="colorSelect">
+                <option value="white">Weiß</option>
+                <option value="black">Schwarz</option>
+              </select>
+            </div>
+
+            <div class="control">
+              <label for="depthRange">Suchtiefe: <span id="depthValue">25</span></label>
+              <input id="depthRange" type="range" min="5" max="30" value="22" />
+            </div>
+
+            <div class="control">
+              <label for="skillRange">Lichess-Level: <span id="skillValue">8</span></label>
+              <input id="skillRange" type="range" min="1" max="8" value="8" />
+            </div>
+
+            <div class="buttons">
+              <button id="newGameBtn">Neues Spiel</button>
+              <button id="swapSidesBtn">Seiten wechseln</button>
+            </div>
+          </div>
+
+          <div class="mode-section mode-tactics">
+            <div class="control">
+              <button id="tacticsBtn">Zufällige Taktikaufgabe</button>
+            </div>
+          </div>
+
+          <div class="mode-section mode-analysis">
+            <div class="control">
+              <button id="analysisHintBtn">Analyse-Tipp</button>
+            </div>
+            <div class="control">
+              <label for="pgnInput">PGN von z.B. chess.com</label>
+              <textarea id="pgnInput" rows="4" placeholder="PGN hier einfügen"></textarea>
+            </div>
+            <div class="control">
+              <button id="pgnAnalyzeBtn">PGN analysieren</button>
+            </div>
+            <div class="control pgn-replay-controls">
+              <button id="pgnPrevBtn">◀ Zurück</button>
+              <button id="pgnNextBtn">Weiter ▶</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status">
+          <div><strong>Status:</strong> <span id="statusText">Bereit</span></div>
+          <div><strong>Züge:</strong></div>
+          <ol id="moveList" class="move-list"></ol>
+          <div><strong>PGN-Analyse:</strong></div>
+          <ol id="pgnAnalysisList" class="move-list"></ol>
+        </div>
+      </section>
+    </main>
+
+    <div id="promotionModal" class="promotion-modal">
+      <div class="promotion-dialog">
+        <div class="promotion-title">Bauernumwandlung</div>
+        <div class="promotion-subtitle">Wähle die neue Figur</div>
+        <div class="promotion-choices">
+          <button type="button" data-piece="q" class="promo-btn">♕</button>
+          <button type="button" data-piece="r" class="promo-btn">♖</button>
+          <button type="button" data-piece="b" class="promo-btn">♗</button>
+          <button type="button" data-piece="n" class="promo-btn">♘</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameOverModal" class="gameover-modal">
+      <div class="gameover-dialog">
+        <div id="gameOverTitle" class="gameover-title">Partie beendet</div>
+        <div id="gameOverText" class="gameover-text"></div>
+        <div class="gameover-actions">
+          <button type="button" id="gameOverNewGameBtn">Neues Spiel</button>
+          <button type="button" id="gameOverCloseBtn">Weiter ansehen</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+  </html>
